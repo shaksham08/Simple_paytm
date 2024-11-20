@@ -106,11 +106,15 @@ userRouter.post("/signin", async (req, res) => {
 });
 
 userRouter.get("/bulk", async (req, res) => {
-  const params = req.query;
-  console.log(params);
+  const filter = req.query.filter || "";
+  const users = await User.find({
+    $or: [{ firstName: { $regex: filter } }, { lastName: { $regex: filter } }],
+  });
+
   return res.status(200).json({
     message: "Bulk API",
-    params,
+    users,
+    filter,
   });
 });
 
