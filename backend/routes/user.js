@@ -4,6 +4,7 @@ const { User } = require("../db");
 var jwt = require("jsonwebtoken");
 const { JWT_SECRET, SALT_ROUNDS } = require("../config");
 const bcrypt = require("bcrypt");
+const { authMiddleware } = require("../middlewares");
 
 const userRouter = express.Router();
 
@@ -17,6 +18,12 @@ const userSignUpSchema = Zod.object({
 const userSignInSchema = Zod.object({
   userName: Zod.string().min(3).max(30),
   password: Zod.string().min(6),
+});
+
+const userUpdateSchema = Zod.object({
+  password: Zod.string().min(6).optional(),
+  firstName: Zod.string().max(50).optional(),
+  lastName: Zod.string().max(50).optional(),
 });
 
 userRouter.post("/signup", async (req, res) => {
@@ -95,6 +102,36 @@ userRouter.post("/signin", async (req, res) => {
   return res.status(200).json({
     message: "User logged in successfully",
     token,
+  });
+});
+
+userRouter.get("/bulk", async (req, res) => {
+  const params = req.query;
+  console.log(params);
+  return res.status(200).json({
+    message: "Bulk API",
+    params,
+  });
+});
+
+userRouter.put("/", authMiddleware, async (req, res) => {
+  const userId = req.userId;
+  const userDetails = req.body;
+
+  const resp = userUpdateSchema.safeParse(userDetails);
+  if (!resp.success) {
+    return res.status(400).json({
+      message: "Incorrect Input",
+    });
+  }
+
+  const updatedData = await User.findByIdAndUpdate(userId, userDetails, {
+    new: true,
+  });
+
+  return res.status(200).json({
+    message: "User data updated successfully",
+    data: updatedData,
   });
 });
 
