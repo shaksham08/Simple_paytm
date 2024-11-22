@@ -1,6 +1,6 @@
 const express = require("express");
 const Zod = require("zod");
-const { User } = require("../db");
+const { User, Account } = require("../db");
 var jwt = require("jsonwebtoken");
 const { JWT_SECRET, SALT_ROUNDS } = require("../config");
 const bcrypt = require("bcrypt");
@@ -52,6 +52,12 @@ userRouter.post("/signup", async (req, res) => {
     const savedUser = await user.save();
     const userId = savedUser._id;
 
+    const newAccount = new Account({
+      userId,
+      balance: Math.random() * 1000,
+    });
+    await newAccount.save();
+    // we can also use Account.create()
     const token = jwt.sign(
       {
         userId,
@@ -112,9 +118,7 @@ userRouter.get("/bulk", async (req, res) => {
   });
 
   return res.status(200).json({
-    message: "Bulk API",
     users,
-    filter,
   });
 });
 
