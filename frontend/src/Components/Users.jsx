@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { Button } from "./Button";
+import { useNavigate } from "react-router-dom";
 
 export const Users = () => {
   const [users, setUsers] = useState([
     {
-      firstName: "Harkirat",
-      lastName: "Singh",
+      firstName: "Shaksham",
+      lastName: "sinha",
       _id: 1,
     },
   ]);
@@ -30,6 +31,7 @@ export const Users = () => {
 };
 
 function User({ user }) {
+  const navigate = useNavigate;
   return (
     <div className="flex justify-between">
       <div className="flex">
@@ -46,7 +48,12 @@ function User({ user }) {
       </div>
 
       <div className="flex flex-col justify-center h-ful">
-        <Button label={"Send Money"} />
+        <Button
+          onClick={() => {
+            navigate("/send-money");
+          }}
+          label={"Send Money"}
+        />
       </div>
     </div>
   );
