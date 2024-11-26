@@ -22,6 +22,7 @@ accountRouter.get("/balance", authMiddleware, async (req, res) => {
 
 accountRouter.post("/transfer", authMiddleware, async (req, res) => {
   const session = await mongoose.startSession();
+  // Start the transaction
   session.startTransaction();
   const userId = req.userId;
   const response = accountTransferSchema.safeParse(req.body);
@@ -73,6 +74,7 @@ accountRouter.post("/transfer", authMiddleware, async (req, res) => {
     }
   ).session(session);
 
+  // Commit the transaction
   await session.commitTransaction();
 
   res.json({
